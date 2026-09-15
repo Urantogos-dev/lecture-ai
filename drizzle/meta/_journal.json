@@ -15,6 +15,13 @@
       "when": 1789452526657,
       "tag": "0001_easy_franklin_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789453087713,
+      "tag": "0002_small_tenebrous",
+      "breakpoints": true
     }
   ]
 }

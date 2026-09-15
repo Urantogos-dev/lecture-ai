@@ -28,3 +28,14 @@ export const lectures = pgTable("lectures", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+export const transcripts = pgTable("transcripts", {
+  id: serial("id").primaryKey(),
+  lectureId: integer("lecture_id")
+    .notNull()
+    .references(() => lectures.id),
+  rawContent: text("raw_content").notNull(),
+  cleanContent: text("clean_content"),
+  language: varchar("language", { length: 10 }).notNull().default("mn"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
