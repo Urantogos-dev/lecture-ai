@@ -42,7 +42,25 @@ app.post("/api/lectures", async (req, res) => {
     });
   }
 });
+app.get("/api/lectures", async (req, res) => {
+  try {
+    const result = await db.execute(sql`
+      SELECT *
+      FROM lectures
+      ORDER BY id ASC;
+    `);
 
+    res.json({
+      data: result,
+    });
+  } catch (error) {
+    console.error("GET LECTURES ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to get lectures",
+    });
+  }
+});
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
