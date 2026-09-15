@@ -45,3 +45,5 @@ next-env.d.ts
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
+
+dist/
