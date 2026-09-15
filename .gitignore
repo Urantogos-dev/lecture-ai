@@ -48,3 +48,6 @@ next-env.d.ts
 
 dist/
 .env
+.venv/
+*.txt
+__pycache__/
