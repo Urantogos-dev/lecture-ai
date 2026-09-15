@@ -61,6 +61,33 @@ app.get("/api/lectures", async (req, res) => {
     });
   }
 });
+app.get("/api/lectures/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.execute(sql`
+      SELECT *
+      FROM lectures
+      WHERE id = ${id};
+    `);
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Lecture not found",
+      });
+    }
+
+    res.json({
+      data: result[0],
+    });
+  } catch (error) {
+    console.error("GET LECTURE ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to get lecture",
+    });
+  }
+});
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
