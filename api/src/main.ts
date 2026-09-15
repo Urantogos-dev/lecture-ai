@@ -37,6 +37,8 @@ app.post(
         });
       }
 
+      const { id } = req.params;
+
       const formData = new FormData();
 
       formData.append("file", fs.createReadStream(req.file.path), {
@@ -51,11 +53,28 @@ app.post(
         },
       );
 
+      const transcriptText = response.data.text;
+
+      await db.execute(sql`
+        INSERT INTO transcripts (
+          lecture_id,
+          raw_content,
+          language
+        )
+        VALUES (
+          ${id},
+          ${transcriptText},
+          'mn'
+        );
+      `);
+
       fs.unlinkSync(req.file.path);
 
       res.json({
         message: "Transcription completed",
-        data: response.data,
+        data: {
+          text: transcriptText,
+        },
       });
     } catch (error) {
       console.error("TRANSCRIBE ERROR:", error);
@@ -66,7 +85,6 @@ app.post(
     }
   },
 );
-
 app.post("/api/lectures", async (req, res) => {
   try {
     const { userId, title, description } = req.body;
