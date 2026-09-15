@@ -6,6 +6,7 @@
 import express from "express";
 import * as path from "path";
 import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 const app = express();
 app.use(express.json());
@@ -20,12 +21,26 @@ app.get("/api/health", (req, res) => {
 });
 
 app.post("/api/lectures", async (req, res) => {
-  console.log(req.body);
+  try {
+    const { userId, title, description } = req.body;
 
-  res.json({
-    message: "Lecture received",
-    data: req.body,
-  });
+    const result = await db.execute(sql`
+      INSERT INTO lectures (user_id, title, description)
+      VALUES (${userId}, ${title}, ${description})
+      RETURNING id, user_id, title, description;
+    `);
+
+    res.status(201).json({
+      message: "Lecture created",
+      data: result[0],
+    });
+  } catch (error) {
+    console.error("CREATE LECTURE ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to create lecture",
+    });
+  }
 });
 
 const port = process.env.PORT || 3333;
