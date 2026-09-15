@@ -26,6 +26,35 @@ app.get("/api/health", (req, res) => {
     message: "Lecture AI API is running",
   });
 });
+app.get("/api/lectures/:id/transcript", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.execute(sql`
+      SELECT id, lecture_id, raw_content, clean_content, language
+      FROM transcripts
+      WHERE lecture_id = ${id}
+      ORDER BY id DESC
+      LIMIT 1;
+    `);
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Transcript not found",
+      });
+    }
+
+    res.json({
+      data: result[0],
+    });
+  } catch (error) {
+    console.error("GET TRANSCRIPT ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to get transcript",
+    });
+  }
+});
 app.post(
   "/api/lectures/:id/transcribe",
   upload.single("file"),
