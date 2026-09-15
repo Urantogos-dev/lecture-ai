@@ -88,6 +88,35 @@ app.get("/api/lectures/:id", async (req, res) => {
     });
   }
 });
+
+app.delete("/api/lectures/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await db.execute(sql`
+      DELETE FROM lectures
+      WHERE id = ${id}
+      RETURNING id;
+    `);
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Lecture not found",
+      });
+    }
+
+    res.json({
+      message: "Lecture deleted",
+      data: result[0],
+    });
+  } catch (error) {
+    console.error("DELETE LECTURE ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to delete lecture",
+    });
+  }
+});
 const port = process.env.PORT || 3333;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
