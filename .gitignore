@@ -51,3 +51,4 @@ dist/
 .venv/
 *.txt
 __pycache__/
+uploads/

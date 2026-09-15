@@ -8,8 +8,13 @@ import * as path from "path";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
 import cors from "cors";
+import multer from "multer";
+import axios from "axios";
+import fs from "fs";
+import FormData from "form-data";
 
 const app = express();
+const upload = multer({ dest: "uploads/" });
 app.use(cors());
 app.use(express.json());
 
@@ -21,6 +26,46 @@ app.get("/api/health", (req, res) => {
     message: "Lecture AI API is running",
   });
 });
+app.post(
+  "/api/lectures/:id/transcribe",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          message: "Audio file is required",
+        });
+      }
+
+      const formData = new FormData();
+
+      formData.append("file", fs.createReadStream(req.file.path), {
+        filename: req.file.originalname,
+      });
+
+      const response = await axios.post(
+        "http://localhost:8000/transcribe",
+        formData,
+        {
+          headers: formData.getHeaders(),
+        },
+      );
+
+      fs.unlinkSync(req.file.path);
+
+      res.json({
+        message: "Transcription completed",
+        data: response.data,
+      });
+    } catch (error) {
+      console.error("TRANSCRIBE ERROR:", error);
+
+      res.status(500).json({
+        message: "Failed to transcribe audio",
+      });
+    }
+  },
+);
 
 app.post("/api/lectures", async (req, res) => {
   try {
